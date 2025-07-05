@@ -5,8 +5,8 @@ import 'models/room.dart';
 import 'models/booking.dart';
 
 void main() {
-  List<Room> rooms = []; // قائمة الغرف
-  List<Booking> bookings = []; // قائمة الحجوزات
+  List<Room> rooms = []; // قايمة الغرف
+  List<Booking> bookings = []; // قايمة الحجوزات
 
   while (true) {
     print("\nWelcome to Hotel Booking System");
