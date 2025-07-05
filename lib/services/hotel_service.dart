@@ -1,105 +1,42 @@
+import '../methods/cancle_booking.dart';
+import '../methods/cancle_booking_by_customer.dart';
 import '../models/room.dart';
 import '../models/customer.dart';
 import '../models/booking.dart';
+
+import '../methods/add_room.dart';
+import '../methods/get_available_rooms.dart';
+import '../methods/find_room_by_number.dart';
+import '../methods/remove_room.dart';
+import '../methods/book_room.dart';
+import '../methods/find_booking_by_room.dart';
+import '../methods/find_booking_by_id.dart';
+import '../methods/view_booking_details.dart';
+import '../methods/view_all_bookings.dart';
 
 class HotelService {
   List<Room> rooms = [];
   List<Booking> bookings = [];
 
-  void addRoom(Room room) {
-    rooms.add(room);
-  }
+  void addRoomToList(Room room) => addRoom(rooms, room);
+  List<Room> getRoomsAvailable() => getAvailableRooms(rooms);
+  Room? findRoom(int number) => findRoomByNumber(rooms, number);
+  void removeRoomFromList(int number) => removeRoom(rooms, number);
 
-  List<Room> getAvailableRooms() {
-    return rooms.where((room) => !room.isBooked).toList();
-  }
+  void book(Room room, Customer customer, int nights) =>
+      bookRoom(bookings, customer, room, nights);
 
-  Room? findRoomByNumber(int roomNumber) {
-    try {
-      return rooms.firstWhere((room) => room.roomNumber == roomNumber);
-    } catch (_) {
-      print(" Room $roomNumber not found.");
-      return null;
-    }
-  }
+  Booking? findBookingByRoom(int roomNumber) =>
+      findBookingByRoomNumber(bookings, roomNumber);
 
-  void removeRoom(int roomNumber) {
-    rooms.removeWhere((room) => room.roomNumber == roomNumber);
-    print(" Room $roomNumber removed successfully.");
-  }
+  Booking? findBookingById(String idNumber, int roomNumber) =>
+    findBookingByCustomerId(bookings, idNumber, roomNumber); 
 
-  void bookRoom(Customer customer, Room room, int numberOfNights) {
-    if (!room.isBooked) {
-      room.isBooked = true;
-      Booking booking = Booking(customer, room, numberOfNights);
-      bookings.add(booking);
-      print(" Booking completed:");
-      print(booking);
-    } else {
-      print(" Room ${room.roomNumber} is already booked.");
-    }
-  }
+  bool cancelByCustomer(String idNumber, int roomNumber) =>
+      cancelBookingByCustomer(bookings, idNumber, roomNumber);
 
-  Booking? findBookingByRoomNumber(int roomNumber) {
-    try {
-      return bookings.firstWhere(
-        (booking) => booking.room.roomNumber == roomNumber,
-      );
-    } catch (_) {
-      print(" Booking not found for Room $roomNumber.");
-      return null;
-    }
-  }
+  void cancelByObject(Booking booking) => cancelBooking(bookings, booking);
 
-  Booking? findBookingByCustomerId(String idNumber) {
-    try {
-      return bookings.firstWhere(
-        (booking) => booking.customer.idNumber == idNumber,
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-bool cancelBookingByCustomer(String idNumber, int roomNumber) {
-  Booking? booking;
-
-  try {
-    booking = bookings.firstWhere(
-      (b) =>
-          b.customer.idNumber == idNumber &&
-          b.room.roomNumber == roomNumber,
-    );
-  } catch (_) {
-    print(" No booking found for Customer ID: $idNumber and Room: $roomNumber.");
-    return false;
-  }
-
-  booking.room.isBooked = false;
-  bookings.remove(booking);
-  print("Booking for Room ${booking.room.roomNumber} cancelled.");
-  return true;
-}
-  void cancelBooking(Booking booking) {
-    Room room = booking.room;
-    room.isBooked = false;
-    bookings.remove(booking);
-    print(" Booking for Room ${room.roomNumber} cancelled successfully.");
-  }
-
-  void viewBookingDetails(Booking booking) {
-    print(" Booking Details:");
-    print(booking);
-  }
-
-  void viewAllBookings() {
-    if (bookings.isEmpty) {
-      print(" No bookings found.");
-    } else {
-      print("All Bookings:");
-      for (var booking in bookings) {
-        print(booking);
-      }
-    }
-  }
+  void showBookingDetails(Booking booking) => viewBookingDetails(booking);
+  void showAllBookings() => viewAllBookings(bookings);
 }

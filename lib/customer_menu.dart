@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'models/room.dart';
-import 'models/customer.dart';
 import 'models/booking.dart';
+import 'models/customer.dart';
+import 'models/room.dart';
 import 'services/hotel_service.dart';
 
 void customerMenu(List<Room> rooms, List<Booking> bookings) {
@@ -10,7 +10,7 @@ void customerMenu(List<Room> rooms, List<Booking> bookings) {
   hotelService.bookings = bookings;
 
   while (true) {
-    print("\nCustomer Panel");
+    print("\n========== Customer Panel ==========");
     print("1. View available rooms");
     print("2. Book a room");
     print("3. Cancel a booking");
@@ -22,10 +22,11 @@ void customerMenu(List<Room> rooms, List<Booking> bookings) {
 
     switch (choice) {
       case '1':
-        List<Room> availableRooms = hotelService.getAvailableRooms();
+        List<Room> availableRooms = hotelService.getRoomsAvailable();
         if (availableRooms.isEmpty) {
-          print("No rooms available.");
+          print(" No rooms available.");
         } else {
+          print(" Available Rooms:");
           for (var room in availableRooms) {
             print(room);
           }
@@ -37,77 +38,52 @@ void customerMenu(List<Room> rooms, List<Booking> bookings) {
         int roomNumber = int.parse(stdin.readLineSync()!);
 
         stdout.write("Enter your name: ");
-        String customerName = stdin.readLineSync()!;
-
+        String name = stdin.readLineSync()!;
         stdout.write("Enter your email: ");
         String email = stdin.readLineSync()!;
-
         stdout.write("Enter your phone number: ");
         String phone = stdin.readLineSync()!;
-
         stdout.write("Enter your ID number: ");
-        String idNumber = stdin.readLineSync()!;
-
+        String id = stdin.readLineSync()!;
         stdout.write("Enter number of nights: ");
-        int numberOfNights = int.parse(stdin.readLineSync()!);
+        int nights = int.parse(stdin.readLineSync()!);
 
-        try {
-          Room room = hotelService.findRoomByNumber(roomNumber)!;
+        Room? room = hotelService.findRoom(roomNumber);
+        if (room != null) {
           Customer customer = Customer(
-            name: customerName,
+            name: name,
             email: email,
             phoneNumber: phone,
-            idNumber: idNumber,
+            idNumber: id,
           );
-          hotelService.bookRoom(customer, room, numberOfNights);
-        } catch (e) {
-          print("Room not found or already booked.");
+          hotelService.book(room, customer, nights);
+        } else {
+          print(" Room not found or already booked.");
         }
         break;
-
       case '3':
-        stdout.write("Enter your name: ");
-        String customerName = stdin.readLineSync()!;
-
         stdout.write("Enter your ID number: ");
-        String idNumber = stdin.readLineSync()!;
-
+        String id = stdin.readLineSync()!;
         stdout.write("Enter room number to cancel booking: ");
-        int roomNumberToCancel = int.parse(stdin.readLineSync()!);
+        int roomNumber = int.parse(stdin.readLineSync()!);
 
-        Booking? booking =
-            hotelService.findBookingByRoomNumber(roomNumberToCancel);
-
-        if (booking != null &&
-            booking.customer.name == customerName &&
-            booking.customer.idNumber == idNumber) {
-          hotelService.cancelBooking(booking);
-        } else {
-          print(
-              "No booking found for Room $roomNumberToCancel under the name $customerName with the given ID.");
+        bool cancelled = hotelService.cancelByCustomer(id, roomNumber);
+        if (!cancelled) {
+          print(" No booking found with the provided ID and room number.");
         }
         break;
 
       case '4':
-        stdout.write("Enter your name: ");
-        String customerName = stdin.readLineSync()!;
-
         stdout.write("Enter your ID number: ");
-        String idNumber = stdin.readLineSync()!;
-
+        String id = stdin.readLineSync()!;
         stdout.write("Enter room number to view booking details: ");
-        int roomNumberToView = int.parse(stdin.readLineSync()!);
+        int roomNumber = int.parse(stdin.readLineSync()!);
 
-        Booking? booking =
-            hotelService.findBookingByRoomNumber(roomNumberToView);
-
-        if (booking != null &&
-            booking.customer.name == customerName &&
-            booking.customer.idNumber == idNumber) {
-          hotelService.viewBookingDetails(booking);
+        Booking? booking = hotelService.findBookingById(id, roomNumber);
+        if (booking != null) {
+          hotelService.showBookingDetails(booking);
         } else {
-          print(
-              "No booking found for Room $roomNumberToView under the name $customerName with the given ID.");
+          print(" No booking found for Room $roomNumber and your ID: $id.");
         }
         break;
 
@@ -116,7 +92,7 @@ void customerMenu(List<Room> rooms, List<Booking> bookings) {
         return;
 
       default:
-        print("Invalid option ");
+        print("Invalid option. Please choose from 1 to 5");
     }
   }
 }
